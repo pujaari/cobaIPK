@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dasbor IPK Mahasiswa</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th,
+        td {
+            border: 1px solid #dddddd;
+            text-align: left;
+            padding: 8px;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+
+        #searchInput {
+            margin-bottom: 10px;
+        }
+
+        .menu {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            z-index: 999;
+        }
+
+        .menu button {
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            padding: 10px;
+            cursor: pointer;
+        }
+
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: #f9f9f9;
+            min-width: 160px;
+            box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+            z-index: 1;
+        }
+
+        .dropdown-content a {
+            color: black;
+            padding: 12px 16px;
+            text-decoration: none;
+            display: block;
+        }
+
+        .dropdown-content a:hover {
+            background-color: #f1f1f1;
+        }
+
+        .dropdown:hover .dropdown-content {
+            display: block;
+        }
+
+        #judul {
+            text-align: center;
+            margin-top: 20px;
+            margin-bottom: 20px;
+        }
+
+        #detailMahasiswa {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: #ffffff;
+            padding: 20px;
+            border: 1px solid #cccccc;
+            box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+            max-width: 400px;
+            z-index: 1000;
+        }
+
+        .dasbor {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: #ffffff;
+            padding: 20px;
+            border: 1px solid #cccccc;
+            box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+            max-width: 400px;
+            z-index: 1000;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="menu">
+        <div class="dropdown">
+            <button class="dropdown-btn">...</button>
+            <div class="dropdown-content">
+                <a href="#" onclick="tambahNamaMahasiswa()">Tambah Nama Mahasiswa</a>
+                <a href="#" onclick="tambahMataKuliah()">Tambah Mata Kuliah</a>
+            </div>
+        </div>
+    </div>
+
+    <h1 id="judul">Dasbor IPK Mahasiswa</h1>
+
+    <!-- Form untuk tambah nama mahasiswa -->
+    <div id="formTambahNama" class="dasbor" style="display: none;">
+        <h2>Tambah Nama Mahasiswa</h2>
+        <label for="namaMahasiswa">Nama Mahasiswa:</label>
+        <input type="text" id="namaMahasiswa"><br>
+        <button onclick="simpanNamaMahasiswa()">Simpan</button>
+        <button onclick="hideDasbor('formTambahNama')">Tutup</button>
+    </div>
+
+    <!-- Form untuk tambah mata kuliah -->
+    <div id="formTambahMataKuliah" class="dasbor" style="display: none;">
+        <h2>Tambah Mata Kuliah</h2>
+        <label for="mataKuliah">Mata Kuliah:</label>
+        <input type="text" id="mataKuliah"><br>
+        <button onclick="simpanMataKuliah()">Simpan</button>
+        <button onclick="hideDasbor('formTambahMataKuliah')">Tutup</button>
+    </div>
+
+    <input type="text" id="searchInput" onkeyup="searchTable()" placeholder="Cari berdasarkan nama...">
+
+    <table id="mahasiswaTable">
+        <tr>
+            <th>No</th>
+            <th>NIM</th>
+            <th>Nama</th>
+            <th>Jumlah IPK</th>
+            <th>Action</th>
+        </tr>
+        <tr>
+            <td>1</td>
+            <td>123456</td>
+            <td>John Doe</td>
+            <td>3.75</td>
+            <td><button onclick="tampilkanDetailMahasiswa(1)">Detail</button></td>
+        </tr>
+        <tr>
+            <td>2</td>
+            <td>654321</td>
+            <td>Jane Smith</td>
+            <td>3.89</td>
+            <td><button onclick="tampilkanDetailMahasiswa(2)">Detail</button></td>
+        </tr>
+        <tr>
+            <td>3</td>
+            <td>987654</td>
+            <td>David Brown</td>
+            <td>3.25</td>
+            <td><button onclick="tampilkanDetailMahasiswa(3)">Detail</button></td>
+        </tr>
+    </table>
+
+    <div id="detailMahasiswa">
+        <h2>Detail Mahasiswa</h2>
+        <p id="detailNama"></p>
+        <p id="detailNIM"></p>
+        <p id="detailIPK"></p>
+        <button onclick="hideDetailMahasiswa()">Tutup</button>
+    </div>
+
+    <script>
+        function searchTable() {
+            var input, filter, table, tr, td, i, txtValue;
+            input = document.getElementById("searchInput");
+            filter = input.value.toUpperCase();
+            table = document.getElementById("mahasiswaTable");
+            tr = table.getElementsByTagName("tr");
+            for (i = 0; i < tr.length; i++) {
+                td = tr[i].getElementsByTagName("td")[2]; // Mengambil kolom Nama
+                if (td) {
+                    txtValue = td.textContent || td.innerText;
+                    if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                        tr[i].style.display = "";
+                    } else {
+                        tr[i].style.display = "none";
+                    }
+                }
+            }
+        }
+
+        function tambahNamaMahasiswa() {
+            document.getElementById("formTambahNama").style.display = "block";
+        }
+
+        function simpanNamaMahasiswa() {
+            var namaMahasiswa = document.getElementById("namaMahasiswa").value;
+            // Tambahkan logika untuk menyimpan nama mahasiswa ke database atau daftar mahasiswa
+            alert("Nama mahasiswa '" + namaMahasiswa + "' berhasil disimpan.");
+            document.getElementById("formTambahNama").style.display = "none";
+        }
+
+        function tambahMataKuliah() {
+            document.getElementById("formTambahMataKuliah").style.display = "block";
+        }
+
+        function simpanMataKuliah() {
+            var mataKuliah = document.getElementById("mataKuliah").value;
+            // Tambahkan logika untuk menyimpan mata kuliah ke database atau daftar mata kuliah
+            alert("Mata kuliah '" + mataKuliah + "' berhasil disimpan.");
+            document.getElementById("formTambahMataKuliah").style.display = "none";
+        }
+
+        function tampilkanDetailMahasiswa(id) {
+            var row = document.getElementById("mahasiswaTable").rows[id];
+            var nama = row.cells[2].innerText;
+            var nim = row.cells[1].innerText;
+            var ipk = row.cells[3].innerText;
+            document.getElementById("detailNama").innerText = "Nama: " + nama;
+            document.getElementById("detailNIM").innerText = "NIM: " + nim;
+            document.getElementById("detailIPK").innerText = "Jumlah IPK: " + ipk;
+            document.getElementById("detailMahasiswa").style.display = "block";
+        }
+
+        function hideDetailMahasiswa() {
+            document.getElementById("detailMahasiswa").style.display = "none";
+        }
+
+        function hideDasbor(id) {
+            document.getElementById(id).style.display = "none";
+        }
+    </script>
+
+</body>
+
+</html>
